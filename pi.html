@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PI Lab - Samsung Joint Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Apple Design System Colors */
+            --bg-body: #f5f5f7; /* Apple light gray background */
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent-blue: #0071e3; /* Apple Blue */
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --card-radius: 28px;
+            
+            /* RL-3A Brand Color */
+            --accent-amber: #FF9F0A;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: fixed; width: 100%; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 1rem 0;
+            transition: all 0.4s ease;
+        }
+        .navbar-brand { font-weight: 600; font-size: 1.3rem; color: #fff !important; letter-spacing: -0.02em; }
+        .nav-link { font-size: 0.9rem; font-weight: 500; color: rgba(255,255,255,0.8) !important; margin-left: 24px; transition: color 0.3s; }
+        .nav-link:hover { color: #fff !important; }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative; height: 100vh; width: 100%; overflow: hidden;
+            background: #000; display: flex; align-items: center; justify-content: center;
+        }
+        .hero-bg-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .carousel-item, .carousel, .carousel-inner { height: 100%; }
+        .hero-bg-img {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.6;
+            transform: scale(1.02);
+        }
+        .hero-gradient {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative; z-index: 10; text-align: center; color: #fff; max-width: 900px; padding: 0 20px;
+        }
+        .welcome-pill {
+            display: inline-flex; align-items: center; gap: 12px;
+            padding: 8px 24px 8px 20px;
+            background: rgba(20, 40, 160, 0.85); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 100px;
+            color: #fff; font-size: 0.95rem; font-weight: 500; margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeDown 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .welcome-pill img { height: 18px; filter: brightness(0) invert(1); }
+        .hero-title {
+            font-size: 4.5rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 1rem;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s forwards; opacity: 0; transform: translateY(20px);
+        }
+        .hero-subtitle {
+            font-size: 1.6rem; font-weight: 400; color: rgba(255,255,255,0.9); letter-spacing: -0.01em;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s forwards; opacity: 0; transform: translateY(20px);
+        }
+        .scroll-indicator {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10;
+            color: rgba(255,255,255,0.6); animation: bounce 2s infinite;
+        }
+
+        /* --- NEW: Joint Research Section (On-going) --- */
+        .collab-section {
+            padding: 6rem 0; background: #000; color: #fff;
+            position: relative; overflow: hidden;
+        }
+        /* 琥珀色流光背景 */
+        .collab-glow {
+            position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+            width: 1200px; height: 800px;
+            background: radial-gradient(circle, rgba(255, 159, 10, 0.15) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(80px); pointer-events: none;
+        }
+        
+        .section-header-dark { margin-bottom: 4rem; text-align: center; position: relative; z-index: 2; }
+        .section-tag {
+            font-size: 0.8rem; font-weight: 700; color: var(--accent-amber); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+        }
+        .section-title-dark { font-size: 3rem; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+
+        /* The Feature Card */
+        .spotlight-card {
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px; overflow: hidden;
+            display: grid; grid-template-columns: 1fr 1fr;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            cursor: pointer; text-decoration: none; color: inherit;
+            position: relative; z-index: 2;
+        }
+        .spotlight-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            border-color: rgba(255, 159, 10, 0.3);
+        }
+
+        .spotlight-content { padding: 60px; display: flex; flex-direction: column; justify-content: center; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 100px;
+            background: rgba(255, 159, 10, 0.15); border: 1px solid rgba(255, 159, 10, 0.3);
+            color: var(--accent-amber); font-size: 0.8rem; font-weight: 600;
+            width: fit-content; margin-bottom: 20px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background: var(--accent-amber); border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .spotlight-title {
+            font-size: 3.5rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .spotlight-desc { font-size: 1.2rem; color: #a1a1a6; line-height: 1.5; margin-bottom: 40px; max-width: 90%; }
+        
+        /* 修改后的 Partners 文字样式 */
+        .spotlight-partners { 
+            display: flex; align-items: center; gap: 15px; 
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px; 
+            font-size: 1.2rem; font-weight: 600; color: #fff; letter-spacing: 0.01em;
+        }
+        .partner-x { color: rgba(255,255,255,0.5); font-weight: 300; font-size: 1rem; }
+
+        .spotlight-visual {
+            position: relative; overflow: hidden; min-height: 400px;
+            background-image: url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1600&q=80');
+            background-size: cover; background-position: center;
+        }
+        .visual-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to right, #1c1c1e 0%, rgba(28,28,30,0) 50%);
+        }
+
+        @media(max-width: 991px) { .spotlight-card { grid-template-columns: 1fr; } .spotlight-visual { height: 300px; } }
+
+
+        /* --- Research Areas --- */
+        .section-padding { padding: 8rem 0; }
+        .section-header { margin-bottom: 5rem; text-align: center; }
+        .section-title { font-size: 3rem; font-weight: 700; letter-spacing: -0.03em; color: var(--text-primary); margin-bottom: 1rem; }
+        .section-desc { font-size: 1.2rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+        .research-card {
+            position: relative; height: 500px; border-radius: var(--card-radius);
+            overflow: hidden; cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        .card-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .card-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 100%);
+        }
+        .card-content-wrap {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 40px 32px; color: #fff; z-index: 2;
+        }
+        .card-tag { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.7); margin-bottom: 12px; }
+        .card-heading { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+        .card-sub { font-size: 1rem; color: rgba(255,255,255,0.8); height: 0; overflow: hidden; opacity: 0; transition: all 0.5s ease; }
+        .research-card:hover { transform: scale(1.02); }
+        .research-card:hover .card-bg { transform: scale(1.1); }
+        .research-card:hover .card-sub { height: auto; opacity: 1; margin-top: 10px; }
+
+        /* --- Projects (Bento) --- */
+        .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+        .bento-item {
+            background: #fff; border-radius: var(--card-radius); overflow: hidden; padding: 40px;
+            display: flex; flex-direction: column; justify-content: space-between; min-height: 450px;
+            transition: all 0.4s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.03); text-decoration: none; color: inherit;
+        }
+        .bento-item:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.12); }
+        .bento-text h3 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+        .bento-text p { color: var(--text-secondary); line-height: 1.5; }
+        .conf-tag {
+            display: inline-block; padding: 4px 10px; border-radius: 6px;
+            background: #f0f0f2; color: #555; font-size: 0.75rem; font-weight: 600; margin-bottom: 15px;
+        }
+        .bento-img-container {
+            margin-top: 30px; width: 100%; height: 250px; border-radius: 12px;
+            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .bento-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .bento-item:hover .bento-img { transform: scale(1.08); }
+        .arrow-link {
+            font-weight: 600; color: var(--accent-blue); margin-top: 20px;
+            display: flex; align-items: center; gap: 5px; opacity: 0; transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        .bento-item:hover .arrow-link { opacity: 1; transform: translateX(0); }
+
+        footer { background: #f5f5f7; padding: 4rem 0; text-align: center; border-top: 1px solid #e5e5e5; }
+        .footer-logo { font-weight: 700; font-size: 1.2rem; color: #1d1d1f; margin-bottom: 1rem; }
+
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform:translate(-50%,0);} 40% {transform:translate(-50%,-10px);} 60% {transform:translate(-50%,-5px);} }
+        @keyframes pulse { 0% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(255, 159, 10, 0.4); } 70% { opacity: 1; box-shadow: 0 0 0 6px rgba(255, 159, 10, 0); } 100% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(255, 159, 10, 0); } }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">PI Group</a>
+            <button class="navbar-toggler navbar-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#research">Focus Areas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#projects">Publications</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#collab">Joint Research</a></li>
+                    <li class="nav-item"><a class="nav-link" href="https://pi-lab.xyz" target="_blank">Lab Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div id="heroCarousel" class="carousel slide carousel-fade hero-bg-slider" data-bs-ride="carousel" data-bs-interval="4000">
+            <div class="carousel-inner">
+                <div class="carousel-item active"><img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1920&q=80" class="hero-bg-img" alt="AI"></div>
+                <div class="carousel-item"><img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80" class="hero-bg-img" alt="Tech"></div>
+                <div class="carousel-item"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80" class="hero-bg-img" alt="Global"></div>
+            </div>
+        </div>
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <div class="welcome-pill">
+                <img src="logo-sr.png" alt="Samsung">
+                <span>Warmest Welcome to Samsung R&D Delegation</span>
+            </div>
+            <h1 class="hero-title">π: Photography & Imaging <br> Research Group</h1>
+            <p class="hero-subtitle">Nankai University</p>
+            <p class="hero-desc" style="margin-top: 20px; font-size: 1.2rem; color: rgba(255,255,255,0.8);">
+                Focusing on <strong>Computational Photography, Generative AI, and ISP Pipeline</strong>.<br>
+                Bridging the gap between cutting-edge research and industrial application.
+            </p>
+        </div>
+        <div class="scroll-indicator"><i class="fas fa-chevron-down"></i></div>
+    </section>
+
+    <section id="research" class="section-padding" style="background: #fff;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Research Areas</h2>
+                <p class="section-desc">Pushing the boundaries of computational imaging through the convergence of AI, optics, and hardware.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="research-card">
+                        <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=800&q=80');"></div>
+                        <div class="card-overlay"></div>
+                        <div class="card-content-wrap">
+                            <div class="card-tag">Vision</div>
+                            <div class="card-heading">Restoration</div>
+                            <div class="card-sub">Dehazing, Denoising, Super-Resolution for extreme environments.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="research-card">
+                        <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80');"></div>
+                        <div class="card-overlay"></div>
+                        <div class="card-content-wrap">
+                            <div class="card-tag">Hardware</div>
+                            <div class="card-heading">Imaging</div>
+                            <div class="card-sub">ISP Pipeline Design, Raw Data Processing, Optical Synthesis.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="research-card">
+                        <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=800&q=80');"></div>
+                        <div class="card-overlay"></div>
+                        <div class="card-content-wrap">
+                            <div class="card-tag">AIGC</div>
+                            <div class="card-heading">Generative</div>
+                            <div class="card-sub">Identity-preserving Editing, Style Transfer, Diffusion Models.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="research-card">
+                        <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80');"></div>
+                        <div class="card-overlay"></div>
+                        <div class="card-content-wrap">
+                            <div class="card-tag">Edge</div>
+                            <div class="card-heading">Mobile AI</div>
+                            <div class="card-sub">Efficient Models, NPU Optimization, Real-time Processing.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Selected Projects</h2>
+                <p class="section-desc">Breakthroughs in computer vision, showcased at top-tier conferences.</p>
+            </div>
+            <div class="bento-grid">
+                <a href="diffretouch.html" class="bento-item">
+                    <div class="bento-text">
+                        <span class="conf-tag">AAAI 2025</span>
+                        <h3>DiffRetouch</h3>
+                        <p>A diffusion-based framework for high-fidelity global and local image retouching with user-friendly control.</p>
+                        <div class="arrow-link">View Project <i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="bento-img-container">
+                        <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&q=80" class="bento-img" alt="DiffRetouch">
+                    </div>
+                </a>
+                <a href="faceme.html" class="bento-item">
+                    <div class="bento-text">
+                        <span class="conf-tag">AAAI 2025</span>
+                        <h3>FaceMe</h3>
+                        <p>Identity-preserving face generation and editing. Edit attributes like age and expression while keeping ID fixed.</p>
+                        <div class="arrow-link">View Project <i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="bento-img-container">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" class="bento-img" alt="FaceMe">
+                    </div>
+                </a>
+                <a href="ipcdehaze.html" class="bento-item">
+                    <div class="bento-text">
+                        <span class="conf-tag">CVPR 2025</span>
+                        <h3>IPC-Dehaze</h3>
+                        <p>Real-time physics-inspired image dehazing network designed specifically for industrial cameras and mobile NPUs.</p>
+                        <div class="arrow-link">View Project <i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="bento-img-container">
+                        <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80" class="bento-img" alt="IPCDehaze">
+                    </div>
+                </a>
+                <a href="pertouch.html" class="bento-item">
+                    <div class="bento-text">
+                        <span class="conf-tag">AAAI 2026</span>
+                        <h3>PerTouch</h3>
+                        <p>Personalized image retouching agent that learns individual user aesthetic preferences from few-shot examples.</p>
+                        <div class="arrow-link">View Project <i class="fas fa-chevron-right"></i></div>
+                    </div>
+                    <div class="bento-img-container">
+                        <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=800&q=80" class="bento-img" alt="PerTouch">
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="collab" class="collab-section">
+        <div class="collab-glow"></div>
+        <div class="container">
+            <div class="section-header-dark">
+                <div class="section-tag">Strategic Collaboration</div>
+                <h2 class="section-title-dark">Ongoing Innovation</h2>
+            </div>
+
+            <a href="rl3a.html" class="spotlight-card">
+                <div class="spotlight-content">
+                    <div class="status-badge">
+                        <div class="pulse-dot"></div> Work in Progress
+                    </div>
+                    <h3 class="spotlight-title">RL-3A</h3>
+                    <p class="spotlight-desc">
+                        A revolutionary Reinforcement Learning based framework for real-time Camera 3A control (AE, AF, AWB), moving beyond traditional statistical analysis to true semantic perception.
+                    </p>
+                    
+                    <div class="spotlight-partners">
+                        <span>PI Group</span>
+                        <span class="partner-x">✕</span>
+                        <span>Samsung Research</span>
+                    </div>
+
+                </div>
+                <div class="spotlight-visual">
+                    <div class="visual-overlay"></div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">PI Group</div>
+            <p style="color: #86868b; font-size: 0.9rem;">
+                College of Computer Science, Nankai University<br>
+                Tianjin, China
+            </p>
+            <div style="margin-top: 2rem; color: #d2d2d7; font-size: 0.8rem;">
+                &copy; 2026 PI Group. Designed for Samsung R&D Collaboration.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

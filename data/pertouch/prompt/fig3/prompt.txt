@@ -1,0 +1,7 @@
+sub1：原图
+sub2-3 PerTouch
+sub4-5 Jarvis
+sub2：Global retouching this image.
+sub3：Significantly increased eagle brightness.
+sub4：Global retouching this image.
+sub5：Improve the overall brightness, ensure the overall beauty of the image, and moderately increase the saturation and contrast. In the region <box>0.117, 0.225, 0.607, 0.914</box>, Greatly increases the brightness of the Eagle.

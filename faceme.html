@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceMe: Identity-Preserving Restoration</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #000000;
+            --bg-light: #f5f5f7;
+            --card-light: #ffffff;
+            --text-primary-dark: #f5f5f7;
+            --text-secondary-dark: #86868b;
+            --text-primary-light: #1d1d1f;
+            --accent-blue: #2997ff;
+            --accent-purple: #bf5af2;
+            --radius-xl: 24px;
+            --glass-panel: rgba(28, 28, 30, 0.65);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: saturate(180%) blur(20px);
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0.8rem 0;
+        }
+        .navbar-brand { font-weight: 600; font-size: 1.1rem; color: #fff !important; }
+        .nav-link { font-size: 0.85rem; color: rgba(255,255,255,0.8) !important; margin-left: 24px; transition: color 0.2s; }
+        .nav-link:hover { color: #fff !important; }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative; height: 100vh; width: 100%;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .hero-bg_2 { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            object-fit: cover; z-index: -1; filter: brightness(0.5) blur(5px); transform: scale(1.05);
+        }
+        .hero-content { position: relative; z-index: 10; text-align: center; max-width: 900px; padding: 0 20px; }
+        
+        .hero-title {
+            font-size: 6rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #e0c3fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: fadeUp 1s ease forwards;
+        }
+        .hero-subtitle {
+            font-size: 1.8rem; color: #a1a1a6; font-weight: 400; margin-bottom: 2rem;
+            animation: fadeUp 1s ease 0.2s forwards; opacity: 0; transform: translateY(20px);
+        }
+
+        /* --- Units / Affiliation --- */
+        .affiliation-container {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            margin-bottom: 3rem;
+            animation: fadeUp 1s ease 0.3s forwards; opacity: 0; transform: translateY(20px);
+        }
+        
+        .affil-badge {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 24px; border-radius: 100px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            font-size: 1rem; font-weight: 500; color: #fff;
+            transition: all 0.3s;
+        }
+        .affil-badge.samsung {
+            background: rgba(20, 40, 160, 0.3);
+            border-color: rgba(60, 100, 255, 0.4);
+            box-shadow: 0 0 20px rgba(20, 40, 160, 0.4);
+        }
+        .affil-badge i { font-size: 1.1rem; opacity: 0.8; }
+        .affil-badge:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
+        .affil-badge.samsung:hover { background: rgba(20, 40, 160, 0.5); }
+
+        .btn-action {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 32px; border-radius: 100px;
+            background: #fff; color: #000; font-size: 1rem; font-weight: 600;
+            text-decoration: none; transition: transform 0.2s; margin: 0 10px;
+        }
+        .btn-action:hover { transform: scale(1.05); }
+        .btn-action.outline { 
+            background: rgba(255,255,255,0.1); color: #fff; 
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); 
+        }
+
+        /* --- Abstract --- */
+        .abstract-section { padding: 8rem 0; background: var(--bg-light); color: var(--text-primary-light); }
+        .abstract-container {
+            max-width: 900px; margin: 0 auto; padding: 4rem;
+            background: var(--card-light); border-radius: var(--radius-xl);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            text-align: justify; font-size: 1.2rem; line-height: 1.8; color: #424245;
+        }
+
+        /* --- Interactive Demo --- */
+        .demo-section {
+            padding: 6rem 0 8rem; background: #000; position: relative; border-top: 1px solid #333;
+        }
+        .demo-glow {
+            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
+            width: 800px; height: 600px;
+            background: radial-gradient(circle, rgba(191, 90, 242, 0.15) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(80px); pointer-events: none;
+        }
+        .demo-header { text-align: center; margin-bottom: 4rem; position: relative; z-index: 1; }
+        .demo-header h2 { font-size: 3.5rem; font-weight: 700; color: #fff; margin-bottom: 0.8rem; }
+
+        .studio-container {
+            max-width: 1200px; margin: 0 auto; position: relative; z-index: 2;
+            display: flex; flex-direction: column; gap: 30px;
+        }
+
+        .avatar-strip {
+            display: flex; justify-content: center; gap: 20px; padding-bottom: 20px;
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .avatar-item {
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            cursor: pointer; opacity: 0.6; transition: all 0.3s;
+        }
+        .avatar-item:hover, .avatar-item.active { opacity: 1; transform: translateY(-5px); }
+        .avatar-circle {
+            width: 70px; height: 70px; border-radius: 50%; overflow: hidden;
+            border: 2px solid transparent; transition: border-color 0.3s;
+            background: #222;
+        }
+        .avatar-item.active .avatar-circle { border-color: var(--accent-purple); box-shadow: 0 0 20px rgba(191, 90, 242, 0.3); }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-name { font-size: 0.9rem; font-weight: 500; text-transform: capitalize; }
+
+        .studio-workspace {
+            display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px;
+            background: var(--glass-panel); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-xl);
+            padding: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+        }
+
+        /* --- 比较器核心样式 (重写) --- */
+        .compare-viewer {
+            position: relative; width: 100%; aspect-ratio: 4/5;
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #000;
+        }
+        
+        /* 两个图片绝对定位，位置完全重合 */
+        .comp-img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; /* 保证填充 */
+            display: block;
+            user-select: none;
+        }
+
+        /* 底层：不清晰图 (Input) */
+        .comp-img.base { z-index: 1; }
+
+        /* 顶层：清晰图 (Output) - 使用 clip-path 控制显示 */
+        /* 初始状态：clip-path inset(0 50% 0 0) 表示右边50%被剪掉，显示出底层的模糊图 */
+        .comp-img.overlay { 
+            z-index: 2; 
+            clip-path: inset(0 50% 0 0); /* Top Right Bottom Left */
+        }
+
+        /* 拖动把手 */
+        .handle {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.5); cursor: ew-resize;
+            display: flex; align-items: center; justify-content: center; 
+            color: #fff; z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        /* 分割线：让视觉上看起来像把线拉开 */
+        .handle::before {
+            content: ''; position: absolute;
+            top: -1000px; bottom: -1000px; /* 延伸到容器外 */
+            width: 1px; background: rgba(255,255,255,0.6);
+            z-index: -1;
+        }
+
+        .badge-label {
+            position: absolute; top: 20px; padding: 6px 14px; border-radius: 30px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            font-size: 0.8rem; font-weight: 600; z-index: 5; pointer-events: none;
+        }
+
+        .ref-panel { display: flex; flex-direction: column; gap: 20px; }
+        .ref-title { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 10px; }
+        .ref-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .ref-card {
+            border-radius: 12px; overflow: hidden; aspect-ratio: 1;
+            border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s;
+        }
+        .ref-card:hover { transform: scale(1.05); z-index: 5; }
+        .ref-card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        @media (max-width: 991px) {
+            .studio-workspace { grid-template-columns: 1fr; }
+            .compare-viewer { aspect-ratio: 1; }
+            .ref-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        footer { background: #f5f5f7; padding: 5rem 0; text-align: center; color: #86868b; }
+        .citation-box {
+            background: #fff; padding: 24px; border-radius: 16px;
+            font-family: 'Monaco', monospace; font-size: 0.85rem; color: #333;
+            text-align: left; overflow-x: auto; border: 1px solid #e5e5e5;
+            max-width: 800px; margin: 0 auto;
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="pi.html"><i class="fas fa-chevron-left me-2"></i>PI Group</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#abstract">Abstract</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#demo" style="color: #fff !important;">Try FaceMe</a></li>
+                    <li class="nav-item"><a class="nav-link" href="https://arxiv.org/abs/2501.05177">Paper</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1600&q=80" class="hero-bg_2" id="heroBg" alt="Hero Background">
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle, rgba(0,0,0,0.3) 0%, #000 100%);"></div>
+        
+        <div class="hero-content">
+            <div style="margin-bottom: 20px; animation: fadeUp 1s ease forwards;">
+                <span style="background: rgba(191, 90, 242, 0.2); border:1px solid rgba(191, 90, 242, 0.4); backdrop-filter:blur(10px); padding: 6px 16px; border-radius: 100px; font-size: 0.85rem; font-weight: 700; color: #e0c3fc; box-shadow: 0 0 15px rgba(191, 90, 242, 0.3);">
+                    AAAI 2025
+                </span>
+            </div>
+
+            <h1 class="hero-title">FaceMe</h1>
+            <p class="hero-subtitle">Identity-Preserving Face Generation & Editing</p>
+            
+            <div class="affiliation-container">
+                <div class="affil-badge">
+                    <i class="fas fa-university"></i>
+                    <span>PI Group, Nankai University</span>
+                </div>
+                <span style="opacity: 0.4; font-size: 1.2rem;">&times;</span>
+                <div class="affil-badge samsung">
+                    <i class="fas fa-flask"></i>
+                    <span>Samsung Research</span>
+                </div>
+            </div>
+
+            <div style="opacity: 0; animation: fadeUp 1s ease 0.6s forwards; transform: translateY(20px);">
+                <a href="https://arxiv.org/abs/2501.05177" class="btn-action"><i class="fas fa-file-pdf"></i> Read Paper</a>
+                <a href="#demo" class="btn-action outline"><i class="fas fa-magic"></i> Interactive Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="abstract" class="abstract-section">
+        <div class="container">
+            <div class="abstract-container">
+                <h3 style="text-align:center; font-weight:700; margin-bottom:1.5rem; color:#1d1d1f;">Abstract</h3>
+                <p>
+                    Restoring degraded face images while faithfully preserving identity remains a significant challenge. Existing methods often struggle to balance restoration quality with identity consistency, especially when dealing with severe degradation or large pose variations.
+                    <br><br>
+                    <strong>FaceMe</strong> introduces a novel reference-based face restoration framework. By leveraging multiple high-quality reference images of the same identity, our model learns to transfer fine-grained identity features to the degraded input. We propose a <strong>Multi-Scale Identity Attention (MSIA)</strong> module that effectively aligns and fuses features from references, ensuring that the restored face maintains the unique characteristics of the subject. Extensive experiments show that FaceMe achieves state-of-the-art performance in both perceptual quality and identity preservation.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+        <div class="demo-glow"></div>
+        
+        <div class="container">
+            <div class="demo-header">
+                <h2>Identity Restoration Studio</h2>
+                <p>Select a subject to see how FaceMe restores details using reference images.</p>
+            </div>
+
+            <div class="studio-container">
+                
+                <div class="avatar-strip" id="avatarStrip">
+                    </div>
+
+                <div class="studio-workspace">
+                    
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:#fff; font-weight:600;">
+                            <span>Restoration Result</span>
+                            <span style="color:var(--text-secondary-dark); font-weight:400; font-size:0.9rem;">Slide right to reveal clarity</span>
+                        </div>
+                        <div class="compare-viewer" id="compContainer">
+                            
+                            <img src="" class="comp-img base" id="imgInput" alt="Input">
+                            
+                            <img src="" class="comp-img overlay" id="imgResult" alt="Restored">
+                            
+                            <span class="badge-label" style="left:20px; background:var(--accent-purple);">FaceMe Output</span>
+                            <span class="badge-label" style="right:20px;">Input (Degraded)</span>
+                            
+                            <div class="handle" id="sliderHandle"><i class="fas fa-arrows-alt-h"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="ref-panel">
+                        <div class="ref-title">Identity References</div>
+                        <p style="font-size:0.9rem; color:#86868b; margin-bottom:15px;">
+                            The model uses these images to guide the identity recovery process.
+                        </p>
+                        <div class="ref-grid" id="refGrid">
+                            </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <h4 style="margin-bottom: 1.5rem; color: #1d1d1f;">Citation</h4>
+            <div class="citation-box">
+                @inproceedings{liu2025faceme,
+                    title={FaceMe: Robust Blind Face Restoration with Personal Identification},
+                    author={Liu, Siyu and Duan, Zheng-Peng and OuYang, Jia and Fu, Jiayi and Park, Hyunhee and Liu, Zikun and Guo, Chunle and Li, Chongyi},
+                    booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+                    year={2025}
+                  }
+            </div>
+            <div style="margin-top: 3rem;">
+                © 2026 PI Group & Samsung Research.
+                <p style="font-size: 0.85rem; color: #555; opacity: 0.8;">Website Template provided by Yuanlin Zhang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Data Configuration ---
+        const peopleData = [
+            { id: 'feifei', name: 'Fei-Fei',  prefix: '6_feifei', refs: 3 },
+            { id: 'hinton', name: 'Hinton',   prefix: '2_hinton', refs: 3 }, // 假设，请核对实际前缀
+            { id: 'jackie chan', name: 'Jackie', prefix: '1_jackie', refs: 3 },
+            { id: 'queen',  name: 'Queen',    prefix: '5_queen',  refs: 3 },
+            { id: 'taylor', name: 'Taylor',   prefix: '4_taylor', refs: 3 },
+            { id: 'trump',  name: 'Trump',    prefix: '3_trump',  refs: 3 }
+        ];
+
+        // --- 2. Init ---
+        const avatarStrip = document.getElementById('avatarStrip');
+        const imgInput = document.getElementById('imgInput'); 
+        const imgResult = document.getElementById('imgResult'); 
+        const refGrid = document.getElementById('refGrid');
+
+        // Render Avatars
+        peopleData.forEach((person, index) => {
+            const div = document.createElement('div');
+            div.className = `avatar-item ${index === 0 ? 'active' : ''}`;
+            div.onclick = () => loadPerson(index);
+            
+            // 使用 ref1 作为头像
+            const avatarPath = `./data/faceme/${person.id}/ref1.png`;
+            
+            div.innerHTML = `
+                <div class="avatar-circle">
+                    <img src="${avatarPath}" class="avatar-img" alt="${person.name}">
+                </div>
+                <div class="avatar-name">${person.name}</div>
+            `;
+            avatarStrip.appendChild(div);
+        });
+
+        // Load Initial Person
+        loadPerson(0);
+
+        // --- 3. Function to Load Data ---
+        function loadPerson(index) {
+            const person = peopleData[index];
+            
+            document.querySelectorAll('.avatar-item').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+
+            // 注意：这里假设您的文件是 png，如果截图显示是 jpg 请改回 .jpg
+            // 您之前的 diffretouch 是 .jpg，但 face 文件夹截图里没有扩展名，通常高质量人脸用 png
+            // 这里暂且使用 .jpg，如果图片不显示请改为 .png
+            const ext = '.png'; 
+            const inputPath = `./data/faceme/${person.id}/${person.prefix}_first${ext}`;
+            const outputPath = `./data/faceme/${person.id}/${person.prefix}_second${ext}`;
+
+            imgInput.src = inputPath;   // 放在底部 (Background)
+            imgResult.src = outputPath; // 放在顶部 (Overlay)
+
+            refGrid.innerHTML = '';
+            for(let i=1; i<=person.refs; i++) {
+                const refPath = `./data/faceme/${person.id}/ref${i}${ext}`;
+                const refDiv = document.createElement('div');
+                refDiv.className = 'ref-card';
+                refDiv.innerHTML = `<img src="${refPath}" alt="Ref ${i}">`;
+                refGrid.appendChild(refDiv);
+            }
+        }
+
+        // --- 4. Slider Logic (Clip Path Implementation) ---
+        const container = document.getElementById('compContainer');
+        const overlayImg = document.getElementById('imgResult'); // 顶层清晰图
+        const handle = document.getElementById('sliderHandle');
+        let isDown = false;
+
+        function moveSlider(e) {
+            if(!isDown) return;
+            const rect = container.getBoundingClientRect();
+            let x = (e.pageX || e.touches[0].pageX) - rect.left - window.scrollX;
+            x = Math.max(0, Math.min(x, rect.width));
+            
+            // 计算百分比
+            const percent = (x / rect.width) * 100;
+            
+            // 核心逻辑：
+            // inset(top right bottom left)
+            // 右边被裁剪的量 = 100% - 当前百分比
+            // 例如滑到 50%，右边 50% 被裁剪，显示左边 50% 的清晰图
+            overlayImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+            
+            handle.style.left = percent + "%";
+        }
+
+        // 初始化：50% 位置
+        overlayImg.style.clipPath = "inset(0 50% 0 0)";
+        handle.style.left = "50%";
+
+        handle.addEventListener('mousedown', () => isDown = true);
+        handle.addEventListener('touchstart', () => isDown = true);
+        window.addEventListener('mouseup', () => isDown = false);
+        window.addEventListener('touchend', () => isDown = false);
+        window.addEventListener('mousemove', moveSlider);
+        window.addEventListener('touchmove', moveSlider);
+
+        container.addEventListener('click', (e) => {
+            const rect = container.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            const percent = (x / rect.width) * 100;
+            overlayImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+            handle.style.left = percent + "%";
+        });
+
+    </script>
+</body>
+</html>

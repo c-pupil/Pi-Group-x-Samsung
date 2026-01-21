@@ -1,0 +1,7 @@
+sub1：原图
+sub2-3 PerTouch
+sub4-5 Jarvis
+sub2：Global retouching this image.
+sub3：Improve overall contrast.
+sub4：Global retouching this image.
+sub5：Improve global brightness, increase global saturation, and improve global contrast.

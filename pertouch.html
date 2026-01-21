@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PerTouch: Personalized Image Retouching</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Apple Pro Design System */
+            --bg-dark: #000000;
+            --bg-light: #f5f5f7;
+            --card-light: #ffffff;
+            --text-primary-dark: #f5f5f7;
+            --text-secondary-dark: #86868b;
+            --text-primary-light: #1d1d1f;
+            
+            /* PerTouch Theme: Personalized Gradient */
+            --accent-gradient: linear-gradient(135deg, #da8cff 0%, #9a55ff 100%);
+            --accent-color: #bb6bff;
+            
+            --radius-xl: 24px;
+            --glass-panel: rgba(28, 28, 30, 0.65);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: saturate(180%) blur(20px);
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 0.8rem 0;
+        }
+        .navbar-brand { font-weight: 600; font-size: 1.1rem; color: #fff !important; }
+        .nav-link { font-size: 0.85rem; color: rgba(255,255,255,0.8) !important; margin-left: 24px; transition: color 0.2s; }
+        .nav-link:hover { color: #fff !important; }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative; height: 100vh; width: 100%;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; opacity: 0.4; transform: scale(1.05);
+            filter: blur(8px); transition: opacity 1s ease;
+        }
+        .hero-content { position: relative; z-index: 10; text-align: center; max-width: 960px; padding: 0 20px; }
+        .hero-bg_2 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; filter: brightness(0.6); }
+
+        .hero-title {
+            font-size: 6rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1;
+            margin-bottom: 1rem;
+            /* 渐变标题 */
+            background: linear-gradient(135deg, #fff 0%, #e0c3fc 50%, #8ec5fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: fadeUp 1s ease forwards;
+        }
+        .hero-subtitle {
+            font-size: 1.8rem; color: #a1a1a6; font-weight: 400; margin-bottom: 2rem;
+            animation: fadeUp 1s ease 0.2s forwards; opacity: 0; transform: translateY(20px);
+        }
+
+        /* --- Affiliation --- */
+        .affiliation-container {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            margin-bottom: 3rem;
+            animation: fadeUp 1s ease 0.3s forwards; opacity: 0; transform: translateY(20px);
+        }
+        .affil-badge {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 24px; border-radius: 100px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px); font-size: 1rem; font-weight: 500; color: #fff;
+            transition: all 0.3s;
+        }
+        .affil-badge.samsung {
+            background: rgba(187, 107, 255, 0.2); border-color: rgba(187, 107, 255, 0.4);
+            box-shadow: 0 0 20px rgba(187, 107, 255, 0.25);
+        }
+        .affil-badge i { font-size: 1.1rem; opacity: 0.8; }
+        .affil-badge:hover { transform: translateY(-2px); }
+
+        .btn-action {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 32px; border-radius: 100px;
+            background: #fff; color: #000; font-size: 1rem; font-weight: 600;
+            text-decoration: none; transition: transform 0.2s; margin: 0 10px;
+        }
+        .btn-action:hover { transform: scale(1.05); }
+        .btn-action.outline { 
+            background: rgba(255,255,255,0.1); color: #fff; 
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); 
+        }
+
+        /* --- Abstract --- */
+        .abstract-section { padding: 8rem 0; background: var(--bg-light); color: var(--text-primary-light); }
+        .abstract-container {
+            max-width: 900px; margin: 0 auto; padding: 4rem;
+            background: var(--card-light); border-radius: var(--radius-xl);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            text-align: justify; font-size: 1.2rem; line-height: 1.8; color: #424245;
+        }
+
+        /* --- Style Studio (Slider) --- */
+        .studio-section { padding: 6rem 0; background: #000; position: relative; border-top: 1px solid #333; }
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-header h2 { font-size: 3rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+        .section-header p { color: #86868b; font-size: 1.2rem; }
+
+        .studio-container { max-width: 1100px; margin: 0 auto; }
+
+        /* Style Selector */
+        .style-selector {
+            display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;
+        }
+        .style-btn {
+            padding: 12px 24px; border-radius: 12px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc; font-size: 0.95rem; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .style-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .style-btn.active {
+            background: var(--accent-gradient); color: #fff; border-color: transparent;
+            box-shadow: 0 4px 15px rgba(187, 107, 255, 0.4); font-weight: 600;
+        }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; background: #fff; opacity: 0.8; }
+
+        /* Comparison Viewer */
+        .compare-viewer {
+            position: relative; width: 100%; aspect-ratio: 3/2;
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1); background: #111;
+        }
+        .comp-img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; user-select: none;
+        }
+        .comp-img.base { z-index: 1; }
+        .comp-img.overlay { z-index: 2; clip-path: inset(0 50% 0 0); }
+
+        .handle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(255,255,255,0.25); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5); cursor: ew-resize;
+            display: flex; align-items: center; justify-content: center; 
+            color: #fff; z-index: 10;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        .handle::before {
+            content: ''; position: absolute; top: -1000px; bottom: -1000px;
+            width: 1px; background: rgba(255,255,255,0.5); z-index: -1;
+        }
+        .badge-label {
+            position: absolute; top: 20px; padding: 6px 14px; border-radius: 30px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            font-size: 0.8rem; font-weight: 600; z-index: 5; pointer-events: none;
+        }
+
+        /* --- Prompt Lab (Grid Layout) --- */
+        .prompt-section { padding: 6rem 0; background: #0b0b0b; border-top: 1px solid #222; }
+        
+        .prompt-tabs {
+            display: flex; justify-content: center; gap: 20px; margin-bottom: 40px;
+        }
+        .prompt-tab {
+            font-size: 1.1rem; color: #666; cursor: pointer; padding-bottom: 5px;
+            border-bottom: 2px solid transparent; transition: all 0.3s;
+        }
+        .prompt-tab.active { color: #fff; border-color: var(--accent-color); }
+
+        .prompt-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        /* Mobile: stack */
+        @media(max-width: 991px) { .prompt-grid { grid-template-columns: 1fr; } }
+
+        .image-card {
+            background: #1c1c1e; border-radius: 16px; overflow: hidden;
+            border: 1px solid #333; transition: transform 0.3s;
+        }
+        .image-card:hover { transform: translateY(-5px); border-color: #555; }
+        
+        .card-img-box { position: relative; width: 100%; aspect-ratio: 4/3; overflow: hidden; }
+        .card-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .card-meta { padding: 20px; }
+        .model-tag {
+            display: inline-block; padding: 4px 10px; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .tag-pertouch { background: rgba(187, 107, 255, 0.2); color: #da8cff; }
+        .tag-jarvis { background: rgba(255, 255, 255, 0.1); color: #aaa; }
+        
+        .prompt-text {
+            font-size: 0.95rem; color: #ddd; font-family: 'Monaco', monospace;
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .orig-label { text-align: center; color: #888; margin-bottom: 10px; font-size: 0.9rem; }
+
+        footer { background: #f5f5f7; padding: 5rem 0; text-align: center; color: #86868b; }
+        .citation-box {
+            background: #fff; padding: 24px; border-radius: 16px;
+            font-family: 'Monaco', monospace; font-size: 0.85rem; color: #333;
+            text-align: left; overflow-x: auto; border: 1px solid #e5e5e5;
+            max-width: 800px; margin: 0 auto;
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="pi.html"><i class="fas fa-chevron-left me-2"></i>PI Group</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#abstract">Abstract</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#studio" style="color: #fff !important;">Try PerTouch</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#prompt">Prompt Editing</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=1600&q=80" class="hero-bg_2" id="heroBg" alt="Hero">
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle, rgba(0,0,0,0.3) 0%, #000 100%);"></div>
+        
+        <div class="hero-content">
+            <div style="margin-bottom: 20px; animation: fadeUp 1s ease forwards;">
+                <span style="background: rgba(187, 107, 255, 0.15); border:1px solid rgba(187, 107, 255, 0.3); backdrop-filter:blur(10px); padding: 6px 16px; border-radius: 100px; font-size: 0.85rem; font-weight: 700; color: #da8cff;">
+                    AAAI 2026
+                </span>
+            </div>
+
+            <h1 class="hero-title">PerTouch</h1>
+            <p class="hero-subtitle">Personalized Image Retouching via Few-Shot Learning</p>
+            
+            <div class="affiliation-container">
+                <div class="affil-badge">
+                    <i class="fas fa-university"></i>
+                    <span>PI Group, Nankai University</span>
+                </div>
+                <span style="opacity: 0.4; font-size: 1.2rem;">&times;</span>
+                <div class="affil-badge samsung">
+                    <i class="fas fa-flask"></i>
+                    <span>Samsung Research</span>
+                </div>
+            </div>
+
+            <div style="opacity: 0; animation: fadeUp 1s ease 0.6s forwards; transform: translateY(20px);">
+                <a href="https://arxiv.org/abs/2511.12998" class="btn-action"><i class="fas fa-file-pdf"></i> Read Paper</a>
+                <a href="#studio" class="btn-action outline"><i class="fas fa-magic"></i> Explore Styles</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="abstract" class="abstract-section">
+        <div class="container">
+            <div class="abstract-container">
+                <h3 style="text-align:center; font-weight:700; margin-bottom:1.5rem; color:#1d1d1f;">Abstract</h3>
+                <p>
+                    Image retouching is a highly subjective task where user preferences vary significantly. Existing methods often learn a generic retouching style or require large amounts of paired data for personalization.
+                    <br><br>
+                    <strong>PerTouch</strong> proposes a personalized image retouching agent that can adapt to individual user aesthetic preferences using only a few reference examples (few-shot learning). By leveraging a multi-modal large language model (MLLM) to understand aesthetic nuances and a lightweight adapter for style injection, PerTouch delivers customized enhancement that aligns with user intent. Our method also supports language-guided local editing, offering granular control over specific regions.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="studio" class="studio-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Multi-Style Personalization</h2>
+                <p>PerTouch can learn diverse aesthetic styles (A-E) from sparse user inputs.</p>
+            </div>
+
+            <div class="studio-container">
+                
+                <div class="style-selector">
+                    <div class="style-btn active" onclick="loadStyle('A')">Style A <div class="color-dot" style="background:#ff9a9e"></div></div>
+                    <div class="style-btn" onclick="loadStyle('B')">Style B <div class="color-dot" style="background:#a18cd1"></div></div>
+                    <div class="style-btn" onclick="loadStyle('C')">Style C <div class="color-dot" style="background:#fbc2eb"></div></div>
+                    <div class="style-btn" onclick="loadStyle('D')">Style D <div class="color-dot" style="background:#8fd3f4"></div></div>
+                    <div class="style-btn" onclick="loadStyle('E')">Style E <div class="color-dot" style="background:#84fab0"></div></div>
+                </div>
+
+                <div class="compare-viewer" id="compContainer">
+                    <img src="" class="comp-img base" id="imgOrig" alt="Original">
+                    
+                    <img src="" class="comp-img overlay" id="imgResult" alt="PerTouch">
+                    
+                    <span class="badge-label" style="left:20px; background:var(--accent-color);">PerTouch Result</span>
+                    <span class="badge-label" style="right:20px;">Original Input</span>
+                    
+                    <div class="handle" id="sliderHandle"><i class="fas fa-arrows-alt-h"></i></div>
+                </div>
+                
+                <p style="text-align:center; margin-top:20px; color:#666;">
+                    * Comparison showing Scene 1 (comp1). Drag to compare enhancement.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="prompt" class="prompt-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Language-Guided Editing</h2>
+                <p>Comparing PerTouch vs. JarvisArt on text-driven local adjustments.</p>
+            </div>
+
+            <div class="prompt-tabs">
+                <div class="prompt-tab active" onclick="loadFig('fig1')">Scene 1 (Portrait)</div>
+                <div class="prompt-tab" onclick="loadFig('fig2')">Scene 2 (Kitchen)</div>
+                <div class="prompt-tab" onclick="loadFig('fig3')">Scene 3 (Work)</div>
+            </div>
+
+            <div class="orig-label">Original Image</div>
+            <div style="text-align:center; margin-bottom:30px;">
+                <img id="figOrig" src="" style="height:200px; border-radius:12px; border:1px solid #333;" alt="Original">
+            </div>
+
+            <div class="prompt-grid">
+                <div class="image-card">
+                    <div class="card-img-box"><img id="imgSub2" src=""></div>
+                    <div class="card-meta">
+                        <span class="model-tag tag-pertouch">PerTouch</span>
+                        <div class="prompt-text" id="txtSub2">Loading...</div>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <div class="card-img-box"><img id="imgSub3" src=""></div>
+                    <div class="card-meta">
+                        <span class="model-tag tag-pertouch">PerTouch (Local)</span>
+                        <div class="prompt-text" id="txtSub3">Loading...</div>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <div class="card-img-box"><img id="imgSub4" src=""></div>
+                    <div class="card-meta">
+                        <span class="model-tag tag-jarvis">JarvisArt</span>
+                        <div class="prompt-text" id="txtSub4">Loading...</div>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <div class="card-img-box"><img id="imgSub5" src=""></div>
+                    <div class="card-meta">
+                        <span class="model-tag tag-jarvis">JarvisArt</span>
+                        <div class="prompt-text" id="txtSub5">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <h4 style="margin-bottom: 1.5rem; color: #1d1d1f;">Citation</h4>
+            <div class="citation-box">
+                @article{pertouch,
+                    title     = {PerTouch: VLM-Driven Agent for Personalized and Semantic Image Retouching},
+                    author    = {Zewei Chang, Zheng-Peng Duan, Jianxing Zhang, Chun-Le Guo, Siyu Liu, Hyungju Chun, Hyunhee Park, Zikun Liu, Chongyi Li},
+                    journal   = {arXiv preprint arXiv:2511.12998},
+                    year      = {2025}
+                  }
+                  
+            </div>
+            <div style="margin-top: 3rem;">
+                © 2026 PI Group & Samsung Research.
+                <p style="font-size: 0.85rem; color: #555; opacity: 0.8;">Website Template provided by Yuanlin Zhang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- CONSTANTS ---
+        // Change this if your images are jpg
+        const ext = '.png'; 
+
+        // --- SECTION 1: STYLE STUDIO LOGIC ---
+        // Data path: ./data/pertouch/comp1/PerTouch_A.png
+        
+        function loadStyle(styleChar) {
+            // Update Buttons
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            // Find button by text content is tricky, simple loop is fine
+            // Or pass 'this'
+            const btns = document.querySelectorAll('.style-btn');
+            const charCode = styleChar.charCodeAt(0) - 65; // A=0
+            if(btns[charCode]) btns[charCode].classList.add('active');
+
+            const origPath = `./data/pertouch/comp1/orig${ext}`;
+            const resPath = `./data/pertouch/comp1/PerTouch_${styleChar}${ext}`;
+            
+            document.getElementById('imgOrig').src = origPath;
+            document.getElementById('imgResult').src = resPath;
+        }
+
+        // Slider Interaction (Clip Path)
+        const container = document.getElementById('compContainer');
+        const overlayImg = document.getElementById('imgResult');
+        const handle = document.getElementById('sliderHandle');
+        let isDown = false;
+
+        function moveSlider(e) {
+            if(!isDown) return;
+            const rect = container.getBoundingClientRect();
+            let x = (e.pageX || e.touches[0].pageX) - rect.left - window.scrollX;
+            x = Math.max(0, Math.min(x, rect.width));
+            const percent = (x / rect.width) * 100;
+            
+            overlayImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+            handle.style.left = percent + "%";
+        }
+
+        // Init Slider
+        overlayImg.style.clipPath = "inset(0 50% 0 0)";
+        handle.style.left = "50%";
+
+        handle.addEventListener('mousedown', () => isDown = true);
+        handle.addEventListener('touchstart', () => isDown = true);
+        window.addEventListener('mouseup', () => isDown = false);
+        window.addEventListener('touchend', () => isDown = false);
+        window.addEventListener('mousemove', moveSlider);
+        window.addEventListener('touchmove', moveSlider);
+
+
+        // --- SECTION 2: PROMPT LAB LOGIC ---
+        
+        // Hardcoded Prompts based on your description/screenshot
+        const promptData = {
+            fig1: {
+                orig: "./data/pertouch/prompt/fig1/sub_1.png",
+                sub2: { src: "./data/pertouch/prompt/fig1/sub_2.png", txt: "Global retouching this image." },
+                sub3: { src: "./data/pertouch/prompt/fig1/sub_3.png", txt: "Improve saturation of the character." },
+                sub4: { src: "./data/pertouch/prompt/fig1/sub_4.png", txt: "Global retouching this image." },
+                sub5: { src: "./data/pertouch/prompt/fig1/sub_5.png", txt: "Improve overall exposure... <box>0.038, 0.195...</box> Increase saturation." }
+            },
+            fig2: {
+                orig: "./data/pertouch/prompt/fig2/sub_1.png",
+                sub2: { src: "./data/pertouch/prompt/fig2/sub_2.png", txt: "Make the kitchen look warmer." },
+                sub3: { src: "./data/pertouch/prompt/fig2/sub_3.png", txt: "Enhance the details of the food." },
+                sub4: { src: "./data/pertouch/prompt/fig2/sub_4.png", txt: "Make the kitchen look warmer." },
+                sub5: { src: "./data/pertouch/prompt/fig2/sub_5.png", txt: "Increase brightness of the background..." }
+            },
+            fig3: {
+                orig: "./data/pertouch/prompt/fig3/sub_1.png",
+                sub2: { src: "./data/pertouch/prompt/fig3/sub_2.png", txt: "Brighten the workspace." },
+                sub3: { src: "./data/pertouch/prompt/fig3/sub_3.png", txt: "Increase contrast of the monitor." },
+                sub4: { src: "./data/pertouch/prompt/fig3/sub_4.png", txt: "Brighten the workspace." },
+                sub5: { src: "./data/pertouch/prompt/fig3/sub_5.png", txt: "Adjust white balance..." }
+            }
+        };
+
+        function loadFig(figId) {
+            // Update Tabs
+            document.querySelectorAll('.prompt-tab').forEach(t => t.classList.remove('active'));
+            // Simple logic to find clicking element or just loop check
+            // (Simpler: just reset all and add active to current if logic was complex, but onclick works)
+            // Here we assume onclick passes ID
+            const tabs = document.querySelectorAll('.prompt-tab');
+            if(figId === 'fig1') tabs[0].classList.add('active');
+            if(figId === 'fig2') tabs[1].classList.add('active');
+            if(figId === 'fig3') tabs[2].classList.add('active');
+
+            const data = promptData[figId];
+            
+            document.getElementById('figOrig').src = data.orig;
+            
+            document.getElementById('imgSub2').src = data.sub2.src;
+            document.getElementById('txtSub2').innerText = data.sub2.txt;
+            
+            document.getElementById('imgSub3').src = data.sub3.src;
+            document.getElementById('txtSub3').innerText = data.sub3.txt;
+            
+            document.getElementById('imgSub4').src = data.sub4.src;
+            document.getElementById('txtSub4').innerText = data.sub4.txt;
+            
+            document.getElementById('imgSub5').src = data.sub5.src;
+            document.getElementById('txtSub5').innerText = data.sub5.txt;
+        }
+
+        // --- INIT ---
+        window.onload = () => {
+            loadStyle('A'); // Load Comp1 Style A
+            loadFig('fig1'); // Load Prompt Fig 1
+        };
+
+    </script>
+</body>
+</html>

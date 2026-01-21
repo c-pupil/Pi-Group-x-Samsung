@@ -1,0 +1,7 @@
+sub1：原图
+sub2-3 PerTouch
+sub4-5 Jarvis
+sub2：Global retouching this image.
+sub3：Improve saturation of the character.
+sub4：Global retouching this image.
+sub5：Improve the overall exposure and saturation of the image to ensure the beauty of the image. In the region <box>0.038, 0.195, 0.471, 1.000</box> , Increase the saturation of the character area.
