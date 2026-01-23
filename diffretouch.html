@@ -14,7 +14,6 @@
     
     <style>
         :root {
-            /* Apple Pro Design System */
             --bg-dark: #000000;
             --bg-light: #f5f5f7;
             --card-light: #ffffff;
@@ -280,9 +279,18 @@
             <div class="abstract-container">
                 <h3 style="text-align:center; font-weight:700; margin-bottom:1.5rem; color:#1d1d1f;">Abstract</h3>
                 <p>
-                    Image retouching aims to enhance the visual quality of photos. Considering the different aesthetic preferences of users, the target of retouching is subjective. However, current retouching methods mostly adopt deterministic models, which neglect style diversity. 
+                  
+                    Image retouching aims to enhance the visual quality of photos. Considering the different aesthetic preferences of users, the target of retouching is
+                    subjective. However, current retouching methods mostly adopt deterministic models, which not only neglects the style diversity in the expert-retouched results
+                    and tends to learn an average style during training, but also lacks sample diversity during inference. 
                     <br><br>
-                    In this paper, we propose <strong>DiffRetouch</strong>, a diffusion-based framework that captures the complex fine-retouched distribution covering various visual-pleasing styles. We introduce an <strong>Affine Bilateral Grid</strong> into the diffusion model to overcome texture distortion and a contrastive learning scheme to address control insensitivity. Extensive experiments demonstrate that our approach significantly outperforms state-of-the-art methods in both visual quality and diversity.
+
+                    In this paper, we propose a diffusion-based method, named
+                    <strong>DiffRetouch</strong>. 
+                    Our method can capture the complex fine-retouched distribution covering various visual-pleasing styles in the training data. Moreover, four image attributes
+                    are made adjustable to provide a user-friendly editing mechanism. By adjusting these attributes in specified ranges, users are allowed to customize preferred
+                    styles within the learned fine-retouched distribution. 
+
                 </p>
             </div>
         </div>

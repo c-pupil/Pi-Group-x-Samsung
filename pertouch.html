@@ -14,7 +14,6 @@
     
     <style>
         :root {
-            /* Apple Pro Design System */
             --bg-dark: #000000;
             --bg-light: #f5f5f7;
             --card-light: #ffffff;
@@ -285,9 +284,15 @@
             <div class="abstract-container">
                 <h3 style="text-align:center; font-weight:700; margin-bottom:1.5rem; color:#1d1d1f;">Abstract</h3>
                 <p>
-                    Image retouching is a highly subjective task where user preferences vary significantly. Existing methods often learn a generic retouching style or require large amounts of paired data for personalization.
+                    Image retouching aims to enhance visual quality while aligning with users’ personalized aesthetic preferences. To address
+                    the challenge of balancing controllability and subjectivity, we
+                    propose a unified diffusion-based image retouching framework called <strong>PerTouch</strong>. 
                     <br><br>
-                    <strong>PerTouch</strong> proposes a personalized image retouching agent that can adapt to individual user aesthetic preferences using only a few reference examples (few-shot learning). By leveraging a multi-modal large language model (MLLM) to understand aesthetic nuances and a lightweight adapter for style injection, PerTouch delivers customized enhancement that aligns with user intent. Our method also supports language-guided local editing, offering granular control over specific regions.
+                    Our method supports semantic-level
+                    image retouching while maintaining global aesthetics. Using parameter maps containing attribute values in specific
+                    semantic regions as input, PerTouch constructs an explicit
+                    parameter-to-image mapping for fine-grained image retouching. To improve semantic boundary perception, we introduce semantic replacement and parameter perturbation mechanisms during training. To connect natural language instructions with visual control, we develop a VLM-driven agent to
+                    handle both strong and weak user instructions.
                 </p>
             </div>
         </div>
@@ -394,7 +399,7 @@
             </div>
             <div style="margin-top: 3rem;">
                 © 2026 PI Group & Samsung Research.
-                <p style="font-size: 0.85rem; color: #555; opacity: 0.8;">Website Template provided by Yuanlin Zhang.</p>
+                <!-- <p style="font-size: 0.85rem; color: #555; opacity: 0.8;">Website Template provided by Yuanlin Zhang.</p> -->
             </div>
         </div>
     </footer>

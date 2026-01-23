@@ -292,9 +292,18 @@
             <div class="abstract-container">
                 <h3 style="text-align:center; font-weight:700; margin-bottom:1.5rem; color:#1d1d1f;">Abstract</h3>
                 <p>
-                    Restoring degraded face images while faithfully preserving identity remains a significant challenge. Existing methods often struggle to balance restoration quality with identity consistency, especially when dealing with severe degradation or large pose variations.
+                    Blind face restoration is a highly ill-posed problem due to the
+                    lack of necessary context. Although existing methods produce high-quality outputs, they often fail to faithfully preserve the individual’s identity. 
                     <br><br>
-                    <strong>FaceMe</strong> introduces a novel reference-based face restoration framework. By leveraging multiple high-quality reference images of the same identity, our model learns to transfer fine-grained identity features to the degraded input. We propose a <strong>Multi-Scale Identity Attention (MSIA)</strong> module that effectively aligns and fuses features from references, ensuring that the restored face maintains the unique characteristics of the subject. Extensive experiments show that FaceMe achieves state-of-the-art performance in both perceptual quality and identity preservation.
+                    In this paper, we propose a personalized face restoration method, <strong>FaceMe</strong>, based on a diffusion model. Given a single or a few reference images, we use
+                    an identity encoder to extract identity-related features, which
+                    serve as prompts to guide the diffusion model in restoring
+                    high-quality and identity-consistent facial images. By simply
+                    combining identity-related features, we effectively minimize
+                    the impact of identity-irrelevant features during training and
+                    support any number of reference image inputs during inference. Additionally, thanks to the robustness of the identity
+                    encoder, synthesized images can be used as reference images during training, and identity changing during inference
+                    does not require fine-tuning the model. 
                 </p>
             </div>
         </div>
@@ -361,7 +370,7 @@
             </div>
             <div style="margin-top: 3rem;">
                 © 2026 PI Group & Samsung Research.
-                <p style="font-size: 0.85rem; color: #555; opacity: 0.8;">Website Template provided by Yuanlin Zhang.</p>
+                <!-- <p style="font-size: 0.85rem; color: #555; opacity: 0.8;">Website Template provided by Yuanlin Zhang.</p> -->
             </div>
         </div>
     </footer>
